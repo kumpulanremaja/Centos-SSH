@@ -10,10 +10,6 @@ yum update -y
 # go to root
 cd
 
-# disable se linux
-echo 0 > /selinux/enforce
-sed -i 's/SELINUX=enforcing/SELINUX=disable/g'  /etc/sysconfig/selinux
-
 # set locale
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 service sshd restart
