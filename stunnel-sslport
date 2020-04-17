@@ -1,3 +1,4 @@
+pid = /var/run/stunnel.pid
 cert = /etc/stunnel/stunnel.pem
 client = no
 socket = a:SO_REUSEADDR=1
