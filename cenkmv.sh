@@ -1,11 +1,27 @@
 #!/bin/bash
-# Script Auto Installer by Indoworx
-# www.indoworx.com
+# Script Auto Installer by HideSSH
+# HideSSH
 # initialisasi var
-OS=`uname -p`;
+
+#Requirement
+if [ ! -e /usr/bin/curl ]; then
+   yum -y update && yum -y upgrade
+   yum -y install curl
+fi
+
+# initializing var
+OS=`uname -m`;
+MYIP=$(curl -4 icanhazip.com)
+if [ $MYIP = "" ]; then
+   MYIP=`ifconfig | grep 'inet addr:' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | cut -d: -f2 | awk '{ print $1}' | head -1`;
+fi
+MYIP2="s/xxxxxxxxx/$MYIP/g";
 
 # update software server
 yum update -y
+
+# set time GMT +7
+ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
 # go to root
 cd
@@ -18,6 +34,15 @@ service sshd restart
 echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
 sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.d/rc.local
+
+
+#Add DNS Server ipv4
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+sed -i '$ i\echo "nameserver 8.8.8.8" > /etc/resolv.conf' /etc/rc.local
+sed -i '$ i\echo "nameserver 8.8.4.4" >> /etc/resolv.conf' /etc/rc.local
+sed -i '$ i\echo "nameserver 8.8.8.8" > /etc/resolv.conf' /etc/rc.d/rc.local
+sed -i '$ i\echo "nameserver 8.8.4.4" >> /etc/resolv.conf' /etc/rc.d/rc.local
 
 # install wget and curl
 yum -y install wget curl
@@ -91,6 +116,23 @@ sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/
 chmod +x /usr/bin/badvpn-udpgw
 screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
 
+# install ddos deflate
+cd
+yum -y install dnsutils dsniff
+wget https://github.com/jgmdev/ddos-deflate/archive/master.zip
+unzip master.zip
+cd ddos-deflate-master
+./install.sh
+rm -rf /root/master.zip
+
+# install fail2ban
+cd
+yum -y install fail2ban
+service fail2ban restart
+chkconfig fail2ban on
+
+#setting dasar SSH Web 
+
 # setting port ssh
 cd
 sed -i '/Port 22/a Port 143' /etc/ssh/sshd_config
@@ -100,17 +142,18 @@ chkconfig sshd on
 
 # install dropbear
 yum -y install dropbear
-echo "OPTIONS=\"-p 80 -p 109 -p 110 -p 443 -b /etc/pesan\"" > /etc/sysconfig/dropbear
+echo "OPTIONS=\"-p 44 -p 77\"" > /etc/sysconfig/dropbear
 echo "/bin/false" >> /etc/shells
-echo "PIDFILE=/var/run/dropbear.pid" >> /etc/init.d/dropbear
 service dropbear restart
 chkconfig dropbear on
 
-# install fail2ban
-cd
-yum -y install fail2ban
-service fail2ban restart
-chkconfig fail2ban on
+# install stunnel
+yum install stunnel
+wget -O /etc/pki/tls/certs/stunnel.pem "https://raw.githubusercontent.com/shigeno143/OCSPanelCentos6/master/stunnel.pem"
+wget -O /etc/stunnel/stunnel.conf "https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/stunnel-sslport"
+mkdir /var/run/stunnel
+chown nobody:nobody /var/run/stunnel
+stunnel /etc/stunnel/stunnel.conf
 
 # install squid
 yum -y install squid
@@ -119,70 +162,28 @@ sed -i $MYIP2 /etc/squid/squid.conf;
 service squid restart
 chkconfig squid on
 
-# auto kill multi login
-#echo "while :" >> /usr/bin/autokill
-#echo "  do" >> /usr/bin/autokill
-#echo "  userlimit $llimit" >> /usr/bin/autokill
-#echo "  sleep 20" >> /usr/bin/autokill
-#echo "  done" >> /usr/bin/autokill
+# setting banner
+rm /etc/issue.net
+wget -O /etc/issue.net "https://raw.githubusercontent.com/shigeno143/OCSPanelCentos6/master/issue.net"
+sed -i 's@#Banner@Banner@g' /etc/ssh/sshd_config
+sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
+service ssh restart
+service dropbear restart
 
-# downlaod script
-cd /usr/bin
-wget -O speedtest "https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py"
-wget -O bench "https://raw.githubusercontent.com/khairilg/script-jualan-ssh-vpn/master/bench-network.sh"
-wget -O mem "https://raw.githubusercontent.com/pixelb/ps_mem/master/ps_mem.py"
-wget -O userlogin "https://raw.githubusercontent.com/khairilg/script-jualan-ssh-vpn/master/user-login.sh"
-wget -O userexpire "https://raw.githubusercontent.com/khairilg/script-jualan-ssh-vpn/master/autoexpire.sh"
-wget -O usernew "https://raw.githubusercontent.com/khairilg/script-jualan-ssh-vpn/master/create-user.sh"
-wget -O userdelete "https://raw.githubusercontent.com/khairilg/script-jualan-ssh-vpn/master/user-delete.sh"
-wget -O userlimit "https://github.com/khairilg/script-jualan-ssh-vpn/raw/master/user-limit.sh"
-wget -O renew "https://raw.githubusercontent.com/khairilg/script-jualan-ssh-vpn/master/user-renew.sh"
-wget -O userlist "https://raw.githubusercontent.com/khairilg/script-jualan-ssh-vpn/master/user-list.sh" 
-wget -O trial "https://raw.githubusercontent.com/khairilg/script-jualan-ssh-vpn/master/user-trial.sh"
-echo "cat /root/log-install.txt" | tee info
-echo "speedtest --share" | tee speedtest
-wget -O /root/chkrootkit.tar.gz ftp://ftp.pangeia.com.br/pub/seg/pac/chkrootkit.tar.gz
-tar zxf /root/chkrootkit.tar.gz -C /root/
-rm -f /root/chkrootkit.tar.gz
-mv /root/chk* /root/chkrootkit
-wget -O checkvirus "https://github.com/khairilg/script-jualan-ssh-vpn/raw/master/checkvirus.sh"
-#wget -O cron-autokill "https://raw.githubusercontent.com/khairilg/script-jualan-ssh-vpn/master/cron-autokill.sh"
-wget -O cron-dropcheck "https://github.com/khairilg/script-jualan-ssh-vpn/raw/master/cron-dropcheck.sh"
+# download script
+cd
+wget https://raw.githubusercontent.com/shigeno143/OCSPanelCentos6/master/install-premiumscript.sh -O - -o /dev/null|sh
 
-# sett permission
-chmod +x userlogin
-chmod +x userdelete
-chmod +x userexpire
-chmod +x usernew
-chmod +x userlist
-chmod +x userlimit
-chmod +x renew
-chmod +x trial
-chmod +x info
-chmod +x speedtest
-chmod +x bench
-chmod +x mem
-chmod +x checkvirus
-#chmod +x autokill
-#chmod +x cron-autokill
-chmod +x cron-dropcheck
+
+
 
 # cron
 cd
-service crond start
 chkconfig crond on
 service crond stop
-echo "0 */12 * * * root /bin/sh /usr/bin/userexpire" > /etc/cron.d/user-expire
+#autoreboot
 echo "0 */12 * * * root /bin/sh /usr/bin/reboot" > /etc/cron.d/reboot
-#echo "* * * * * root /bin/sh /usr/bin/cron-autokill" > /etc/cron.d/autokill
-echo "* * * * * root /bin/sh /usr/bin/cron-dropcheck" > /etc/cron.d/dropcheck
-#echo "0 */1 * * * root killall /bin/sh" > /etc/cron.d/killak
-
-# set time GMT +7
-ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
-
-# finalisasi
-chown -R nginx:nginx /home/vps/public_html
+# finalizing
 service nginx start
 service php-fpm start
 service vnstat restart
@@ -194,47 +195,36 @@ service squid restart
 service crond start
 chkconfig crond on
 
+#clearing history
+history -c
+
 # info
-echo "Layanan yang diaktifkan"  | tee -a log-install.txt
-echo "--------------------------------------"  | tee -a log-install.txt
-echo "OpenVPN : TCP 1194 (client config : http://$MYIP:81/client.ovpn)"  | tee -a log-install.txt
-echo "Port OpenSSH : 22, 143"  | tee -a log-install.txt
-echo "Port Dropbear : 80, 109, 110, 443"  | tee -a log-install.txt
-echo "SquidProxy    : 8080, 8888, 3128 (limit to IP SSH)"  | tee -a log-install.txt
-echo "Nginx : 81"  | tee -a log-install.txt
-echo "badvpn   : badvpn-udpgw port 7300"  | tee -a log-install.txt
-echo "Webmin   : http://$MYIP:10000/"  | tee -a log-install.txt
-echo "vnstat   : http://$MYIP:81/vnstat/"  | tee -a log-install.txt
-echo "MRTG     : http://$MYIP:81/mrtg/"  | tee -a log-install.txt
-echo "Timezone : Asia/Jakarta"  | tee -a log-install.txt
-echo "Fail2Ban : [on]"  | tee -a log-install.txt
-echo "IPv6     : [off]"  | tee -a log-install.txt
-echo "Root Login on Port 22 : [disabled]"  | tee -a log-install.txt
+clear
+echo " "
+echo "INSTALLATION COMPLETE!"
+echo " "
+echo "--------------------------- Setup Server Information ---------------------------"
+echo "                                Copyright HideSSH                       		  "
+echo "--------------------------------------------------------------------------------"
+echo "Server Included"  | tee -a log-install.txt
+echo "   - Timezone    : Asia/jakarta (GMT +8)"  | tee -a log-install.txt
+echo "   - Fail2Ban    : [ON]"  | tee -a log-install.txt
+echo "   - IPtables    : [ON]"  | tee -a log-install.txt
+echo "   - DDeflate    : [ON]"  | tee -a log-install.txt
+echo "   - Auto-Reboot : [OFF]"  | tee -a log-install.txt
+echo "   - IPv6        : [OFF]"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
-echo "Tools"  | tee -a log-install.txt
-echo "-----"  | tee -a log-install.txt
-echo "axel, bmon, htop, iftop, mtr, nethogs"  | tee -a log-install.txt
-echo "" | tee -a log-install.txt
-echo "Account Default (untuk SSH dan VPN)"  | tee -a log-install.txt
-echo "---------------"  | tee -a log-install.txt
-echo "User     : $dname"  | tee -a log-install.txt
-echo "Password : $dname@2017"  | tee -a log-install.txt
-echo "sudo su telah diaktifkan pada user $dname"  | tee -a log-install.txt
-echo "" | tee -a log-install.txt
-echo "Script Command"  | tee -a log-install.txt
-echo "--------------"  | tee -a log-install.txt
-echo "speedtest --share : untuk cek speed vps"  | tee -a log-install.txt
-echo "mem : untuk melihat pemakaian ram"  | tee -a log-install.txt
-echo "checkvirus : untuk scan virus / malware"  | tee -a log-install.txt
-echo "bench : untuk melihat performa vps" | tee -a log-install.txt
-echo "usernew : untuk membuat akun baru"  | tee -a log-install.txt
-echo "userlist : untuk melihat daftar akun beserta masa aktifnya"  | tee -a log-install.txt
-echo "userlimit <limit> : untuk kill akun yang login lebih dari <limit>. Cth: userlimit 1"  | tee -a log-install.txt
-echo "userlogin  : untuk melihat user yang sedang login"  | tee -a log-install.txt
-echo "userdelete  : untuk menghapus user"  | tee -a log-install.txt
-echo "trial : untuk membuat akun trial selama 1 hari"  | tee -a log-install.txt
-echo "renew : untuk memperpanjang masa aktif akun"  | tee -a log-install.txt
-echo "info : untuk melihat ulang informasi ini"  | tee -a log-install.txt
-echo "--------------"  | tee -a log-install.txt
-echo "CATATAN: Karena alasan keamanan untuk login ke user root silahkan gunakan port 443" | tee -a log-install.txt
-rm -f /root/cenkmv.sh
+echo "   - Stunnel     : 443"  | tee -a log-install.txt
+echo "   - Dropbear    : 109, 110, 442"  | tee -a log-install.txt
+echo "   - Squid Proxy : 80, 8000, 8080, 8888, 3128 (limit to IP Server)"  | tee -a log-install.txt
+echo "   - Badvpn      : 7300"  | tee -a log-install.txt
+echo "   - Nginx       : 85"  | tee -a log-install.txt
+
+echo ""  | tee -a log-install.txt
+echo "Server Tools"  | tee -a log-install.txt
+echo "   - htop"  | tee -a log-install.txt
+echo "   - iftop"  | tee -a log-install.txt
+echo "   - mtr"  | tee -a log-install.txt
+echo "   - nethogs"  | tee -a log-install.txt
+echo "   - screenfetch"  | tee -a log-install.txt
+echo "------------------------------ HideSSH -----------------------------"
