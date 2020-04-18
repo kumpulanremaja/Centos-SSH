@@ -70,6 +70,10 @@ yum -y --enablerepo=rpmforge install axel sslh ptunnel unrar
 service exim stop
 chkconfig exim off
 
+#install Netstat
+cd
+yum -y install net-tools
+
 # setting vnstat
 vnstat -u -i eth0
 echo "MAILTO=root" > /etc/cron.d/vnstat
@@ -120,15 +124,20 @@ chkconfig dropbear on
 
 # install squid
 yum -y install squid
-wget -O /etc/squid/squid.conf "https://raw.githubusercontent.com/khairilg/script-jualan-ssh-vpn/master/conf/squid-centos.conf"
+wget -O /etc/squid/squid.conf "https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/squid.conf"
 sed -i $MYIP2 /etc/squid/squid.conf;
 service squid restart
 chkconfig squid on
 
 #install stunnel
+cd
 yum -y install stunnel
 wget -O /etc/rc.d/init.d/stunnel "https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/stunnel-init"
 wget -O /etc/stunnel/stunnel.conf "https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/stunnel-sslport"
+wget -O /etc/stunnel/stunnel.pem "https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/stunnel.pem"
+chmod +x /etc/init.d/stunnel
+service stunnel restart
+chkconfig stunnel on
 
 # download script all Menu
 cd
@@ -188,3 +197,5 @@ echo "   - mtr"  | tee -a log-install.txt
 echo "   - nethogs"  | tee -a log-install.txt
 echo "   - screenfetch"  | tee -a log-install.txt
 echo "------------------------------ HideSSH -----------------------------"
+
+rm -rf centos7.sh
