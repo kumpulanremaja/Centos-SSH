@@ -107,6 +107,11 @@ service fail2ban restart
 chkconfig fail2ban on
 
 #setting dasar SSH Web 
+#banner SSH
+wget -O /etc/banner-akun "https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/banner"
+chmod +x banner
+cd
+sed -i '/Banner none/a Banner /etc/banner-akun' /etc/ssh/sshd_config
 
 # setting port ssh
 cd
