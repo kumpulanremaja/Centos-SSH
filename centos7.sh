@@ -122,7 +122,7 @@ chkconfig sshd on
 
 # install dropbear
 yum -y install dropbear
-echo "OPTIONS=\"-p 44 -p 77\"" > /etc/sysconfig/dropbear
+echo "OPTIONS=\"-b /etc/banner-akun -p 44 -p 77\"" > /etc/sysconfig/dropbear
 echo "/bin/false" >> /etc/shells
 service dropbear restart
 chkconfig dropbear on
