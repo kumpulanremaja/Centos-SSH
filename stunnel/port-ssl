@@ -1,0 +1,18 @@
+client=no
+cert = /etc/stunnel/stunnel.pem
+
+[openssl]
+connect = 127.0.0.1:22
+accept = 222
+
+[openssl2]
+connect = 127.0.0.1:143
+accept = 888
+
+[dropbearssl]
+connect = 127.0.0.1:77
+accept = 777
+
+[dropbearssl]
+connect = 127.0.0.1:44
+accept = 444
