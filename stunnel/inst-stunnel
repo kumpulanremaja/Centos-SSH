@@ -1,0 +1,15 @@
+#!/bin/bash
+# Script Auto Installer by HideSSH
+# HideSSH
+# initialisasi Stunnel
+
+cd
+yum -y install stunnel
+wget -O /etc/stunnel/stunnel.pem "https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/stunnel.pem"
+wget -O /lib/systemd/system/stunnel.service "https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/stunnel/tunnel"
+wget -O /etc/stunnel/stunnel.conf "https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/stunnel/port-ssl"
+
+chmod 600 /etc/stunnel/stunnel.pem
+sudo systemctl start stunnel.service
+sudo systemctl enable stunnel.service
+chkconfig stunnel on
