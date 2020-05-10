@@ -157,6 +157,11 @@ wget https://raw.githubusercontent.com/shigeno143/OCSPanelCentos6/master/install
 chmod +x premiumscript.sh
 bash premiumscript.sh
 
+#install firewall all port
+cd 
+wget https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/firewall.sh
+bash firewall.sh
+
 # cron
 cd
 chkconfig crond on
