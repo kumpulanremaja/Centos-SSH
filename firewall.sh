@@ -24,6 +24,8 @@ firewall-cmd --zone=public --add-port=9000/tcp --permanent
 firewall-cmd --zone=public --add-port=8888/tcp --permanent
 
 #badvpn
+firewall-cmd --zone=public --add-port=7100/tcp --permanent
+firewall-cmd --zone=public --add-port=7200/tcp --permanent
 firewall-cmd --zone=public --add-port=7300/tcp --permanent
 
 #firewall Custom
