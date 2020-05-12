@@ -92,11 +92,13 @@ echo "screenfetch" >> .bash_profile
 # install badvpn
 cd
 wget -O /usr/bin/badvpn-udpgw "https://www.dropbox.com/s/tgkxdwb03r7w59r/badvpn-udpgw"
+wget https://raw.githubusercontent.com/kumpulanremaja/Centos-SSH/master/bad.sh
 #port BadVPN 7300
-sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 1000 --max-connections-for-client 10' /etc/rc.local
-sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 1000 --max-connections-for-client 10' /etc/rc.d/rc.local
+sed -i '$ i\/root/bad.sh' /etc/rc.local
+sed -i '$ i\/root/bad.sh' /etc/rc.d/rc.local
 
 chmod +x /usr/bin/badvpn-udpgw
+chmod +x /root/bad.sh
 screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 1000 --max-connections-for-client 10
 
 # install fail2ban
