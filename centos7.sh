@@ -96,17 +96,18 @@ wget -O /usr/bin/badvpn-udpgw "https://github.com/ForNesiaFreak/FNS/raw/master/s
 if [ "$OS" == "x86_64" ]; then
   wget -O /usr/bin/badvpn-udpgw "https://github.com/ForNesiaFreak/FNS/raw/master/sett/badvpn-udpgw64"
 fi
-sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7500' /etc/rc.local
+
 chmod +x /usr/bin/badvpn-udpgw
 #port BadVPN 7300
 sed -i '$ i\/root/bad.sh' /etc/rc.local
-sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7500' /etc/rc.local
+sed -i '$ i\/root/bad.sh' /etc/rc.d/rc.local
 #pasang badvpn
+chmod +x /etc/rc.d/rc.local
 chmod +x /usr/bin/badvpn-udpgw
 chmod +x /root/bad.sh
 cd
 bash bad.sh
-screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7500
+
 
 # install fail2ban
 cd
