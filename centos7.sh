@@ -100,7 +100,7 @@ sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7500' /etc/
 chmod +x /usr/bin/badvpn-udpgw
 #port BadVPN 7300
 sed -i '$ i\/root/bad.sh' /etc/rc.local
-sed -i '$ i\/root/bad.sh' /etc/rc.d/rc.local
+sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7500' /etc/rc.local
 #pasang badvpn
 chmod +x /usr/bin/badvpn-udpgw
 chmod +x /root/bad.sh
@@ -124,7 +124,7 @@ sed -i '/Banner none/a Banner /etc/banner-akun' /etc/ssh/sshd_config
 # setting port ssh
 cd
 sed -i '/Port 22/a Port 143' /etc/ssh/sshd_config
-sed -i 's/#Port 22/Port  22/g' /etc/ssh/sshd_config
+sed -i 's/#Port 22/Port 22/g' /etc/ssh/sshd_config
 service sshd restart
 chkconfig sshd on
 
