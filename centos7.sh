@@ -99,7 +99,8 @@ sed -i '$ i\/root/bad.sh' /etc/rc.d/rc.local
 
 chmod +x /usr/bin/badvpn-udpgw
 chmod +x /root/bad.sh
-screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 1000 --max-connections-for-client 10
+cd
+bash bad.sh
 
 # install fail2ban
 cd
